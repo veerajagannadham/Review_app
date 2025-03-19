@@ -1,16 +1,20 @@
 import * as cdk from 'aws-cdk-lib';
+import * as lambdanode from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+
 import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class ReviewAppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    const getReviews = new lambdanode.NodejsFunction(this, "getReviews", {
+      architecture: lambda.Architecture.ARM_64,
+      runtime: lambda.Runtime.NODEJS_22_X,
+      entry: `${__dirname}/../lambdas/getMovieReview.ts`, 
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 128,
+    });
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'ReviewAppQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
   }
 }
