@@ -7,7 +7,7 @@ import Ajv from "ajv";
 import schema from "../shared/types.schema.json";
 
 const ajv = new Ajv();
-const isValidBodyParams = ajv.compile(schema.definitions["Movie"] || {});
+const isValidBodyParams = ajv.compile(schema.definitions["Reviews"] || {});
 
 const dynamoClient = new DynamoDBClient();
 let reviewId = 1000;

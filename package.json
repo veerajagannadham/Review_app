@@ -28,7 +28,10 @@
     "@aws-sdk/util-dynamodb": "^3.738.0",
     "ajv": "^8.17.1",
     "aws-cdk-lib": "^2.176.0",
+    "axios": "^1.8.4",
     "constructs": "^10.4.2",
+    "jsonwebtoken": "^9.0.2",
+    "jwk-to-pem": "^2.0.7",
     "source-map-support": "^0.5.21"
   }
 }

@@ -7,6 +7,7 @@ export const reviews : Reviews[] = [
         reviewerId: "user1@example.com",
         reviewDate: "2023-10-01",
         content: "This movie was amazing! The storyline kept me hooked till the end.",
+        
       },
       {
         movieId: 1,
