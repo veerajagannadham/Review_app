@@ -49,6 +49,19 @@ export class ReviewAppStack extends cdk.Stack {
       },
     });
 
+    // Update Review lambda
+    const updateReview = new lambdanode.NodejsFunction(this, "updateReview", {
+      architecture: lambda.Architecture.ARM_64,
+      runtime: lambda.Runtime.NODEJS_22_X,
+      entry: `${__dirname}/../lambdas/updateReviews.ts`,
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 128,
+      environment: {
+        TABLE_NAME: reviewsTable.tableName,
+        REGION: "eu-west-1",
+      },
+    });
+
     // Initialize data in DynamoDB
     new custom.AwsCustomResource(this, "reviewsddbInitData", {
       onCreate: {
@@ -93,9 +106,16 @@ export class ReviewAppStack extends cdk.Stack {
     const translationEndpoint = reviewsreviewIdmovieidEndpoint.addResource("translation");
     translationEndpoint.addMethod("GET", new apig.LambdaIntegration(getTranslation, { proxy: true }));
 
+    //Update Review Endpoint
+    const moviesmovieIdEndpoint = moviesEndpoint.addResource("{movieId}");
+    const moviesmovieIdreviewsEndpoint = moviesmovieIdEndpoint.addResource("reviews");
+    const moviesmovieIdreviewsreviewIdEndpoint = moviesmovieIdreviewsEndpoint.addResource("{reviewId}");
+    moviesmovieIdreviewsreviewIdEndpoint.addMethod("PUT",new apig.LambdaIntegration(updateReview, { proxy: true }) )
+
     // Permissions
     reviewsTable.grantReadData(getReviews);
     reviewsTable.grantReadData(getTranslation);
+    reviewsTable.grantReadWriteData(updateReview);
 
     // Add TranslateText permission to the getTranslation Lambda
     getTranslation.role?.attachInlinePolicy(new iam.Policy(this, 'TranslateTextPolicy', {
