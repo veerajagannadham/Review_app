@@ -2,10 +2,15 @@ import {
     DynamoDBClient,
     PutItemCommand,
   } from "@aws-sdk/client-dynamodb";
-  import { marshall } from "@aws-sdk/util-dynamodb";
-  import { APIGatewayProxyHandlerV2 } from "aws-lambda";
-  import { AddReviewType, Reviews } from "../shared/types";
-  import { getFormattedDate } from "../shared/util";
+import { marshall } from "@aws-sdk/util-dynamodb";
+import { APIGatewayProxyHandlerV2 } from "aws-lambda";
+import { AddReviewType, Reviews } from "../shared/types";
+import { getFormattedDate } from "../shared/util";
+import Ajv from "ajv";
+import schema from "../shared/types.schema.json";
+
+const ajv = new Ajv();
+const isValidBodyParams = ajv.compile(schema.definitions["Movie"] || {});
   
   const dynamoClient = new DynamoDBClient();
   let reviewId = 1000;
