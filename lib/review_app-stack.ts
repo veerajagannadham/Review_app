@@ -4,6 +4,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as custom from "aws-cdk-lib/custom-resources";
 import * as apig from "aws-cdk-lib/aws-apigateway";
+import * as iam from "aws-cdk-lib/aws-iam";
 
 import { Construct } from "constructs";
 import { generateBatch } from "../shared/util";
@@ -35,6 +36,19 @@ export class ReviewAppStack extends cdk.Stack {
       },
     });
 
+    // Get translation lambda
+    const getTranslation = new lambdanode.NodejsFunction(this, "getTranslation", {
+      architecture: lambda.Architecture.ARM_64,
+      runtime: lambda.Runtime.NODEJS_22_X,
+      entry: `${__dirname}/../lambdas/getTranslations.ts`,
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 128,
+      environment: {
+        TABLE_NAME: reviewsTable.tableName,
+        REGION: "eu-west-1",
+      },
+    });
+
     // Initialize data in DynamoDB
     new custom.AwsCustomResource(this, "reviewsddbInitData", {
       onCreate: {
@@ -52,9 +66,6 @@ export class ReviewAppStack extends cdk.Stack {
       }),
     });
 
-    // Permissions
-    reviewsTable.grantReadData(getReviews);
-
     // REST API 
     const api = new apig.RestApi(this, "RestAPI", {
       description: "demo api",
@@ -69,13 +80,31 @@ export class ReviewAppStack extends cdk.Stack {
       },
     });
 
-
-    //Get endpoint
+    // Get Review Endpoint
     const moviesEndpoint = api.root.addResource("movies");
     const moviesreviewsEndpoint = moviesEndpoint.addResource("reviews");
     const moviesreviewsmovieidEndpoint = moviesreviewsEndpoint.addResource("{movieId}");
-    moviesreviewsmovieidEndpoint.addMethod("GET", new apig.LambdaIntegration(getReviews, {proxy:true}))
+    moviesreviewsmovieidEndpoint.addMethod("GET", new apig.LambdaIntegration(getReviews, { proxy: true }));
 
-    
+    // Get Translation Endpoint
+    const reviewsEndpoint = api.root.addResource("reviews");
+    const reviewsreviewIdEndpoint = reviewsEndpoint.addResource("{reviewId}");
+    const reviewsreviewIdmovieidEndpoint = reviewsreviewIdEndpoint.addResource("{movieId}");
+    const translationEndpoint = reviewsreviewIdmovieidEndpoint.addResource("translation");
+    translationEndpoint.addMethod("GET", new apig.LambdaIntegration(getTranslation, { proxy: true }));
+
+    // Permissions
+    reviewsTable.grantReadData(getReviews);
+    reviewsTable.grantReadData(getTranslation);
+
+    // Add TranslateText permission to the getTranslation Lambda
+    getTranslation.role?.attachInlinePolicy(new iam.Policy(this, 'TranslateTextPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          actions: ['translate:TranslateText'],
+          resources: ['*'], // Consider restricting to specific resources if possible
+        }),
+      ],
+    }));
   }
 }
