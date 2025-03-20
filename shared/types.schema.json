@@ -17,6 +17,21 @@
             ],
             "type": "object"
         },
+        "ExtendedReviewQueryParams": {
+            "additionalProperties": false,
+            "properties": {
+                "movieId": {
+                    "type": "number"
+                },
+                "reviewId": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "movieId"
+            ],
+            "type": "object"
+        },
         "Reviews": {
             "additionalProperties": false,
             "properties": {
