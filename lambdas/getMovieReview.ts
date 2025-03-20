@@ -1,75 +1,100 @@
-import { APIGatewayProxyHandlerV2 } from "aws-lambda"; // CHANGED
+import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
 import { QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
+import Ajv from "ajv";
+import schema from "../shared/types.schema.json";
+import { ExtendedReviewQueryParams } from "../shared/types";
 
-const dynamoClient = new DynamoDBClient({ region: process.env.REGION }); 
+const ajv = new Ajv();
+const isValidQueryParams = ajv.compile(
+  schema.definitions["ExtendedReviewQueryParams"] || {}
+);
 
-export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
-  
+const dynamoClient = new DynamoDBClient({ region: process.env.REGION });
+
+export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   try {
     console.log("[EVENT]", JSON.stringify(event));
 
     // Extract movieId from path parameters
-    const pathParameters = event?.pathParameters;
-    const movieId = pathParameters?.movieId
-      ? parseInt(pathParameters.movieId)
-      : undefined;
-
-    // Validate movieId
-    if (!movieId) {
+    const pathParams = event.pathParameters;
+    if (!pathParams || !pathParams.movieId) {
       return {
         statusCode: 400,
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ message: "Movie ID not present in the table" }),
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: "movieId is required in the path" }),
       };
     }
 
-    // Build the DynamoDB query
-    const queryCommandInput: QueryCommandInput = {
-      TableName: process.env.TABLE_NAME || "ReviewTable", // Use environment variable or fallback
+    // Validate movieId
+    const movieId = parseInt(pathParams.movieId, 10);
+    if (isNaN(movieId)) {
+      return {
+        statusCode: 400,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: "movieId must be a valid number" }),
+      };
+    }
+
+    // Extract reviewId from query parameters (if provided)
+    const queryParams = event.queryStringParameters || {};
+    let reviewId: number | undefined;
+    if (queryParams.reviewId !== undefined) {
+      const parsedReviewId = parseInt(queryParams.reviewId, 10);
+      if (!isNaN(parsedReviewId)) {
+        reviewId = parsedReviewId;
+      } else {
+        return {
+          statusCode: 400,
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ message: "reviewId must be a valid number" }),
+        };
+      }
+    }
+
+    /// Build the query for DynamoDB
+    let queryCommandInput: QueryCommandInput = {
+      TableName: process.env.TABLE_NAME || "ReviewsTable",
       KeyConditionExpression: "movieId = :mid",
       ExpressionAttributeValues: {
-        ":mid": { N: movieId.toString() }, // Ensure movieId is a string for DynamoDB
+        ":mid": { N: movieId.toString() },
       },
     };
+
+    // If reviewId is provided, include it in KeyConditionExpression
+    if (reviewId !== undefined) {
+      queryCommandInput.KeyConditionExpression += " AND reviewId = :rid";
+      queryCommandInput.ExpressionAttributeValues![":rid"] = { N: reviewId.toString(),
+      };
+    }
 
     // Query DynamoDB
     const response = await dynamoClient.send(
       new QueryCommand(queryCommandInput)
     );
 
-    // Handle no results
     if (!response.Items || response.Items.length === 0) {
       return {
         statusCode: 404,
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ message: "No reviews found for this movie ID" }),
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: "No matching reviews found" }),
       };
     }
 
     // Unmarshall DynamoDB items
     const reviews = response.Items.map((item) => unmarshall(item));
 
-    // Return the results
     return {
       statusCode: 200,
-      headers: {
-        "content-type": "application/json",
-      },
+      headers: { "content-type": "application/json" },
       body: JSON.stringify({ reviews }),
     };
   } catch (error: any) {
     console.error("[ERROR]", error);
     return {
       statusCode: 500,
-      headers: {
-        "content-type": "application/json",
-      },
+      headers: { "content-type": "application/json" },
       body: JSON.stringify({ error: error.message }),
     };
   }
