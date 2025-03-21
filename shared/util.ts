@@ -1,5 +1,6 @@
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { Reviews } from "./types"
+import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 export const generateReviewItem = (reviews: Reviews)=>{
     return {
@@ -29,3 +30,10 @@ export const getFormattedDate = () => {
   // Combine into DD-MM-YYYY format
   return `${day}-${month}-${year}`;
 };
+
+// Verifier that expects valid access tokens:
+export const JWTVerifier = CognitoJwtVerifier.create({
+    userPoolId: "eu-west-1_w8qNDAepr",
+    tokenUse: "id",
+    clientId: "5p442esh5eoc1c66e8h301n4qo",
+  });
