@@ -118,7 +118,7 @@ export class AppApi extends Construct {
 
     // Permissions
     reviewsTable.grantReadData(getReviews);
-    reviewsTable.grantReadData(getTranslation);
+    reviewsTable.grantReadWriteData(getTranslation);
     reviewsTable.grantReadWriteData(updateReview);
     reviewsTable.grantReadWriteData(addReview);
 

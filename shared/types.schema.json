@@ -17,6 +17,22 @@
             ],
             "type": "object"
         },
+        "ConfirmSignUpBody": {
+            "additionalProperties": false,
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "code",
+                "username"
+            ],
+            "type": "object"
+        },
         "ExtendedReviewQueryParams": {
             "additionalProperties": false,
             "properties": {
@@ -47,6 +63,10 @@
                 "reviewId": {
                     "type": "number"
                 },
+                "reviewTranslation": {
+                    "additionalProperties": {"type":"string"},
+                    "type": "object"
+                },
                 "reviewerId": {
                     "type": "string"
                 }
@@ -57,6 +77,42 @@
                 "reviewDate",
                 "reviewId",
                 "reviewerId"
+            ],
+            "type": "object"
+        },
+        "SignInBody": {
+            "additionalProperties": false,
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "password",
+                "username"
+            ],
+            "type": "object"
+        },
+        "SignUpBody": {
+            "additionalProperties": false,
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "email",
+                "password",
+                "username"
             ],
             "type": "object"
         }

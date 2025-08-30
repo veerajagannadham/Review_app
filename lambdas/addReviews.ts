@@ -2,7 +2,7 @@ import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { AddReviewType, Reviews } from "../shared/types";
-import { getFormattedDate, JWTVerifier } from "../shared/util"; // Ensure JWTVerifier is imported
+import { getFormattedDate, JWTVerifier } from "../shared/util"; 
 import Ajv from "ajv";
 import schema from "../shared/types.schema.json";
 
