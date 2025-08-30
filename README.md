@@ -10,21 +10,28 @@ This Review_app repository contains the implementation of a serverless REST API 
 
 ### App API endpoints.
 
-GET /movies/reviews/[movieId] - Get all the reviews for the specified movie. It will also support an optional query string that specifies a review ID or reviewer identity (email address), e.g. ?revieId=1234
-POST /movies/reviews - add a movie review. Only authenticated users can post a review.
-PUT /movies/{movieId}/reviews/{reviewId} - Update the text of a review.
-GET /reviews/{reviewId}/{movieId}/translation?language=code - Get a translated version of a movie review, using the movie ID and review Id as the identifier.
-images/image.png
-images/image-1.png
+- GET /movies/reviews/[movieId] - Get all the reviews for the specified movie. It will also support an optional query string that specifies a review ID or reviewer identity (email address), e.g. ?revieId=1234
+- POST /movies/reviews - add a movie review. Only authenticated users can post a review.
+- PUT /movies/{movieId}/reviews/{reviewId} - Update the text of a review.
+- GET /reviews/{reviewId}/{movieId}/translation?language=code - Get a translated version of a movie review, using the movie ID and review Id as the identifier.
+
 
 ### Features.
 
-Authentication.
-The app’s stack infrastructure should include a separate API for processing user authentication requests (the Auth API). It should allow users to self-register, login, and log out.
-images/image-2.png
 
-Authorization.
+#### Authentication.
+The app’s stack infrastructure should include a separate API for processing user authentication requests (the Auth API). It should allow users to self-register, login, and log out.
+
+
+#### Authorization.
+
 Only authenticated users can perform POST and PUT requests, whereas GET requests are publicly accessible. In addition, only the originator of a review can update it.
+
+
+#### Amazon Translate.
+
+Translated version of the movie review has been created showed in a get request.
+
 
 #### Translation persistence (if completed)
 
@@ -73,6 +80,6 @@ export class AuthApi extends Construct {
 
 #### Restricted review updates
 
-In the restricted review updates first extract JWT token from the Cookie header and then Verify JWT token. The user name of the reviewer is then extracted using the key value pair in the JWT token. Proper exception handling is then performed for the JSON, parameters etc. If the reviewer name mataches with the name in Dynamo DB, procceeds with the update and save to the Dynamo DB
+In the restricted review updates first extract JWT token from the Cookie header and then Verify JWT token. The user name of the reviewer is then extracted using the key value pair in the JWT token. Proper exception handling is then performed for the JSON, parameters etc. If the reviewer name mataches with the name in Dynamo DB, procceeds with the update and save the review to the Dynamo DB
 
-All the features used only from the lectures.
+All the features used in this assigment is only from the lectures.
