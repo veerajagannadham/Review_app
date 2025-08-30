@@ -48,6 +48,37 @@
             ],
             "type": "object"
         },
+        "FrontEndReview": {
+            "additionalProperties": false,
+            "properties": {
+                "Name": {
+                    "type": "string"
+                },
+                "Photo": {
+                    "type": "string"
+                },
+                "Rating": {
+                    "type": "string"
+                },
+                "Review": {
+                    "type": "string"
+                },
+                "ReviewId": {
+                    "type": "string"
+                },
+                "Writer": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "Name",
+                "Photo",
+                "Rating",
+                "Review",
+                "Writer"
+            ],
+            "type": "object"
+        },
         "Reviews": {
             "additionalProperties": false,
             "properties": {
@@ -64,7 +95,7 @@
                     "type": "number"
                 },
                 "reviewTranslation": {
-                    "additionalProperties": {"type":"string"},
+                    "additionalProperties": false,
                     "type": "object"
                 },
                 "reviewerId": {

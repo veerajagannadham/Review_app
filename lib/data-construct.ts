@@ -23,7 +23,15 @@ export class ReviewsTable extends Construct {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       tableName: props.tableName,
     });
-
+    
+// const tmdbReview = new dynamodb.Table(this, "FrontendReviewsTable", {
+//       partitionKey: { name: "ReviewId", type: dynamodb.AttributeType.STRING },
+//       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+//       removalPolicy: cdk.RemovalPolicy.DESTROY,
+//       tableName: "FrontendReviewsTable",
+//       // Change to RETAIN for production
+//     });
+    
     // Initialize data in DynamoDB
     new custom.AwsCustomResource(this, "reviewsddbInitData", {
       onCreate: {

@@ -6,7 +6,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as node from "aws-cdk-lib/aws-lambda-nodejs";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { ReviewsTable } from "./data-construct"; // Import the custom construct
-
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 type AppApiProps = {
   userPoolId: string;
   userPoolClientId: string;
@@ -20,6 +20,15 @@ export class AppApi extends Construct {
     const reviewsTable = new ReviewsTable(this, "ReviewsTable", {
       tableName: "ReviewsTable",
     }).table;
+    
+     
+const tmdbReview = new dynamodb.Table(this, "FrontendReviewsTable", {
+      partitionKey: { name: "ReviewId", type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      tableName: "FrontendReviewsTable",
+      // Change to RETAIN for production
+    });
 
     const appApi = new apig.RestApi(this, "AppApi", {
       description: "App RestApi",
@@ -73,6 +82,22 @@ export class AppApi extends Construct {
       entry: `${__dirname}/../lambdas/auth/authorizer.ts`,
     });
 
+    const addFrontendReview = new node.NodejsFunction(this, "AddFrontendReview", {
+      ...appCommonFnProps,
+      entry: `${__dirname}/../lambdas/addtmdbreview.ts`,
+      environment: {
+        TMDB_TABLE_NAME: tmdbReview.tableName, // Set the table name as an environment variable
+      },
+    });
+
+    const retrieveMovieReviews = new node.NodejsFunction(this, "retrieveMovieReviews", {
+      ...appCommonFnProps,
+      entry: `${__dirname}/../lambdas/getTmdbReviews.ts`,
+      environment: {
+        REVIEWS_TABLE_NAME: tmdbReview.tableName,
+      },
+    });
+
     // Request Authorizer
     const requestAuthorizer = new apig.RequestAuthorizer(this, "RequestAuthorizer", {
       identitySources: [apig.IdentitySource.header("Cookie")],
@@ -96,6 +121,7 @@ export class AppApi extends Construct {
     // Update Review Endpoint (with Authorization)
     const moviesmovieIdEndpoint = moviesEndpoint.addResource("{movieId}");
     const moviesmovieIdreviewsEndpoint = moviesmovieIdEndpoint.addResource("reviews");
+    const reviewsResource = appApi.root.addResource("frontendreviews");
     const moviesmovieIdreviewsreviewIdEndpoint = moviesmovieIdreviewsEndpoint.addResource("{reviewId}");
     moviesmovieIdreviewsreviewIdEndpoint.addMethod(
       "PUT",
@@ -116,11 +142,22 @@ export class AppApi extends Construct {
       }
     );
 
+    reviewsResource.addMethod(
+      "POST",
+      new apig.LambdaIntegration(addFrontendReview, { proxy: true })
+    );
+    reviewsResource.addMethod(
+      "GET",
+      new apig.LambdaIntegration(retrieveMovieReviews, { proxy: true })
+    );
+
     // Permissions
     reviewsTable.grantReadData(getReviews);
     reviewsTable.grantReadWriteData(getTranslation);
     reviewsTable.grantReadWriteData(updateReview);
     reviewsTable.grantReadWriteData(addReview);
+    tmdbReview.grantWriteData(addFrontendReview);
+    tmdbReview.grantReadData(retrieveMovieReviews);
 
     // Add TranslateText permission to the getTranslation Lambda
     getTranslation.role?.attachInlinePolicy(
