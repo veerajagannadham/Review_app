@@ -31,7 +31,6 @@ Only authenticated users can perform POST and PUT requests, whereas GET requests
 
 In the restricted review updates first extract JWT token from the Cookie header and then Verify JWT token. The user name of the reviewer is then extracted using the key value pair in the JWT token. Proper exception handling is then performed for the JSON, parameters etc. If the reviewer name mataches with the name in Dynamo DB, procceeds with the update and save the review to the Dynamo DB
 
-All the features used in this assigment is only from the lectures.
 
 
 #### Amazon Translate.
