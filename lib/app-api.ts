@@ -4,11 +4,8 @@ import { Construct } from "constructs";
 import * as apig from "aws-cdk-lib/aws-apigateway";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as node from "aws-cdk-lib/aws-lambda-nodejs";
-import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
-import * as custom from "aws-cdk-lib/custom-resources";
 import * as iam from "aws-cdk-lib/aws-iam";
-import { generateBatch } from "../shared/util";
-import { reviews } from "../seed/reviews";
+import { ReviewsTable } from "./data-construct"; // Import the custom construct
 
 type AppApiProps = {
   userPoolId: string;
@@ -19,31 +16,10 @@ export class AppApi extends Construct {
   constructor(scope: Construct, id: string, props: AppApiProps) {
     super(scope, id);
 
-    // DynamoDB Review Table
-    const reviewsTable = new dynamodb.Table(this, "ReviewsTable", {
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      partitionKey: { name: "movieId", type: dynamodb.AttributeType.NUMBER },
-      sortKey: { name: "reviewId", type: dynamodb.AttributeType.NUMBER },
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    // Use the custom construct to create the DynamoDB table
+    const reviewsTable = new ReviewsTable(this, "ReviewsTable", {
       tableName: "ReviewsTable",
-    });
-
-    // Initialize data in DynamoDB
-    new custom.AwsCustomResource(this, "reviewsddbInitData", {
-      onCreate: {
-        service: "DynamoDB",
-        action: "batchWriteItem",
-        parameters: {
-          RequestItems: {
-            [reviewsTable.tableName]: generateBatch(reviews),
-          },
-        },
-        physicalResourceId: custom.PhysicalResourceId.of("reviewsddbInitData"),
-      },
-      policy: custom.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [reviewsTable.tableArn],
-      }),
-    });
+    }).table;
 
     const appApi = new apig.RestApi(this, "AppApi", {
       description: "App RestApi",
