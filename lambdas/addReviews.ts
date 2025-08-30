@@ -7,13 +7,12 @@ import Ajv from "ajv";
 import schema from "../shared/types.schema.json";
 
 const ajv = new Ajv();
-const isValidBodyParams = ajv.compile(schema.definitions["Reviews"] || {});
 
 const dynamoClient = new DynamoDBClient();
 let reviewId = 1000;
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-  // Extract JWT token from the Cookie header
+  // Extract JWT token from the Cookie header and then split and trim it
   const getTokenFromCookie = (cookieHeader: string | undefined): string | null => {
     if (!cookieHeader) return null;
     const cookies = cookieHeader.split(";").map((cookie) => cookie.trim());
@@ -85,7 +84,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     const bodyToAdd: Reviews = {
       movieId: requestBody.movieId,
       reviewId: reviewId,
-      reviewerId: reviewerId, // Use the email from the token as reviewerId
+      reviewerId: reviewerId, 
       reviewDate: getFormattedDate(),
       content: requestBody.content,
     };

@@ -57,8 +57,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       new GetItemCommand({
         TableName: process.env.TABLE_NAME,
         Key: {
-          movieId: { N: movieId.toString() }, // Ensure correct data type
-          reviewId: { N: reviewId.toString() }, // Ensure correct data type
+          movieId: { N: movieId.toString() },
+          reviewId: { N: reviewId.toString() }, 
         },
       })
     );
@@ -80,8 +80,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     const review = unmarshall(getResponse.Item) as Reviews;
     console.log("Unmarshalled Review:", JSON.stringify(review, null, 2));
 
-    const translations = review.reviewTranslation || {}; // Default to empty object if not present
-
+    const translations = review.reviewTranslation || {}; 
     // Check if the translation already exists
     if (translations[targetLanguage]) {
       return {
@@ -97,7 +96,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     // Translate the review content
     const translatedResp = await translateClient.send(
       new TranslateTextCommand({
-        SourceLanguageCode: "en", // Assuming the source language is English
+        SourceLanguageCode: "en", 
         TargetLanguageCode: targetLanguage,
         Text: review.content,
       })
@@ -111,7 +110,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
           Key: { movieId: movieId, reviewId: reviewId }, 
           UpdateExpression: "SET reviewTranslation.#lang = :translation",
           ExpressionAttributeNames: {
-            "#lang": targetLanguage, // Alias for the dynamic language key
+            "#lang": targetLanguage, 
           },
           ExpressionAttributeValues: {
             ":translation": translatedText,

@@ -33,7 +33,7 @@ export const getFormattedDate = () => {
 
 // Verifier that expects valid access tokens:
 export const JWTVerifier = CognitoJwtVerifier.create({
-    userPoolId: "eu-west-1_PgizSkxBX",
+    userPoolId: "eu-west-1_0GAu3I2WK",
     tokenUse: "id",
-    clientId: "1g1vdrt28d8lo7bh57lj2r16cu",
+    clientId: "5049oun7gebdm7rvtb61lm5d64",
   });

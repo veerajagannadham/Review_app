@@ -21,7 +21,7 @@ import {
       };
     }
   
-    // Extract JWT token from the Cookie header
+    // Extract JWT token from the Cookie header and then split and trim it
     const getTokenFromCookie = (
       cookieHeader: string | undefined
     ): string | null => {
@@ -59,7 +59,7 @@ import {
       };
     }
   
-    // Extract reviewerId (email) from the token
+    // Extract reviewerId from the token
     const reviewerId = tokenPayload["cognito:username"];
   
     // Validate request body

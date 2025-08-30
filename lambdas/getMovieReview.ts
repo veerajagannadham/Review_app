@@ -37,7 +37,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       };
     }
 
-    // Extract reviewId from query parameters (if provided)
+    // Extract reviewId from query parameters 
     const queryParams = event.queryStringParameters || {};
     let reviewId: number | undefined;
     if (queryParams.reviewId !== undefined) {

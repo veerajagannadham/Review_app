@@ -2,7 +2,7 @@
 
 **Name:** Justin Jose
 
-**Demo:** ... link to your YouTube video demonstration ......
+**Demo:** ... [link to your YouTube video demonstration](https://www.youtube.com/watch?v=uZqDBKqp11I) ......
 
 ### Overview.
 
@@ -20,20 +20,26 @@ This Review_app repository contains the implementation of a serverless REST API 
 
 
 #### Authentication.
-The app’s stack infrastructure should include a separate API for processing user authentication requests (the Auth API). It should allow users to self-register, login, and log out.
+The app’s stack infrastructure includes separate API's for processing user authentication requests (the Auth API). It allows users to self-register, login, and log out.
 
 
 #### Authorization.
 
-Only authenticated users can perform POST and PUT requests, whereas GET requests are publicly accessible. In addition, only the originator of a review can update it.
+Only authenticated users can perform POST and PUT requests, whereas GET requests are publicly accessible. In addition, only the originator of a review can update the same review.
+
+#### Restricted review updates
+
+In the restricted review updates first extract JWT token from the Cookie header and then Verify JWT token. The user name of the reviewer is then extracted using the key value pair in the JWT token. Proper exception handling is then performed for the JSON, parameters etc. If the reviewer name mataches with the name in Dynamo DB, procceeds with the update and save the review to the Dynamo DB
+
+All the features used in this assigment is only from the lectures.
 
 
 #### Amazon Translate.
 
-Translated version of the movie review has been created showed in a get request.
+Translated version of the movie review has been created and showed in a get request.
 
 
-#### Translation persistence (if completed)
+#### Translation persistence 
 
 A Translated version of the content of the review is generated using amazon translate and its stored in the optional attribute reviewTranslation. 
 The structure of a table item that includes review translations, e.g.
@@ -58,8 +64,3 @@ export class ReviewsTable extends Construct {
 ~~~
 
 
-#### Restricted review updates
-
-In the restricted review updates first extract JWT token from the Cookie header and then Verify JWT token. The user name of the reviewer is then extracted using the key value pair in the JWT token. Proper exception handling is then performed for the JSON, parameters etc. If the reviewer name mataches with the name in Dynamo DB, procceeds with the update and save the review to the Dynamo DB
-
-All the features used in this assigment is only from the lectures.
