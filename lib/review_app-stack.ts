@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { AuthApi } from './auth-api'
 import {AppApi } from './app-api'
+// import { FrontendStack } from '../lib/frontend-construct';n/ 
 
 export class ReviewAppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -32,6 +33,7 @@ export class ReviewAppStack extends cdk.Stack {
         userPoolClientId: userPoolClientId,
       } );
   
+      // new FrontendStack(this, 'Frontendstack');
     } 
   
   }

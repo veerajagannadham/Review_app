@@ -1,4 +1,4 @@
-import { APIGatewayProxyHandlerV2 } from "aws-lambda";
+import { APIGatewayEvent, APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { SignInBody } from "../../shared/types";
 import {
   CognitoIdentityProviderClient,
@@ -15,9 +15,9 @@ const client = new CognitoIdentityProviderClient({
   region: process.env.REGION,
 });
 
-export const handler: APIGatewayProxyHandlerV2 = async (event) => {
+export const handler = async (event: APIGatewayEvent) => {
   try {
-    console.log("[EVENT]",JSON.stringify(event));
+    console.log("[EVENT]", JSON.stringify(event));
     const body = event.body ? JSON.parse(event.body) : undefined;
 
     if (!isValidBodyParams(body)) {
@@ -70,12 +70,18 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       body: JSON.stringify({
         message: "Auth successfull",
         token: token,
+        username: signInBody.username,
       }),
     };
   } catch (err) {
     console.error(err);
     return {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*",  
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",  
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",  
+      },
       body: JSON.stringify({
         message: err,
       }),

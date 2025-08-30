@@ -35,5 +35,5 @@ export const getFormattedDate = () => {
 export const JWTVerifier = CognitoJwtVerifier.create({
     userPoolId: "eu-west-1_0GAu3I2WK",
     tokenUse: "id",
-    clientId: "5049oun7gebdm7rvtb61lm5d64",
+    clientId: "5v984rvtmqk0r92sburuo0vgu8",
   });
