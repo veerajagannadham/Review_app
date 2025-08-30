@@ -5,7 +5,7 @@ import * as apig from "aws-cdk-lib/aws-apigateway";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as node from "aws-cdk-lib/aws-lambda-nodejs";
 import * as iam from "aws-cdk-lib/aws-iam";
-import { ReviewsTable } from "./data-construct"; // Import the custom construct
+import { ReviewsTable } from "./data-construct"; 
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 type AppApiProps = {
   userPoolId: string;
@@ -27,7 +27,7 @@ const tmdbReview = new dynamodb.Table(this, "FrontendReviewsTable", {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       tableName: "FrontendReviewsTable",
-      // Change to RETAIN for production
+      
     });
 
     const appApi = new apig.RestApi(this, "AppApi", {
@@ -86,7 +86,7 @@ const tmdbReview = new dynamodb.Table(this, "FrontendReviewsTable", {
       ...appCommonFnProps,
       entry: `${__dirname}/../lambdas/addtmdbreview.ts`,
       environment: {
-        TMDB_TABLE_NAME: tmdbReview.tableName, // Set the table name as an environment variable
+        TMDB_TABLE_NAME: tmdbReview.tableName, 
       },
     });
 

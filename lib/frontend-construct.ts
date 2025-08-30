@@ -10,7 +10,7 @@ export class FrontendStack extends Construct {
     super(scope, id);
 
     const siteBucket = new s3.Bucket(this, "SiteBucket", {
-      bucketName: "movie-app-frontend-bucket",
+      bucketName: "movie-app-frontend-bucket1",
       publicReadAccess: true,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
